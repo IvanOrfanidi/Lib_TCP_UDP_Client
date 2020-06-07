@@ -1,11 +1,14 @@
-#include "vclient.hpp"
+#include "../include/vclient.h"
+
+namespace tcp_udp_client {
 
 #if defined(_WIN32)
 int VClient::_countClients = 0;
 #endif
 
-/*
- * @brief Constructor
+/**
+ * @brief Construct a new VClient::VClient object
+ * 
  */
 VClient::VClient()
 {
@@ -18,8 +21,9 @@ VClient::VClient()
 #endif
 }
 
-/*
- * @brief Destructor
+/**
+ * @brief Destroy the VClient::VClient object
+ * 
  */
 VClient::~VClient()
 {
@@ -31,10 +35,12 @@ VClient::~VClient()
 #endif
 }
 
-/*
+/**
  * @brief Close socket
+ * 
+ * @param sock - socket
  */
-void VClient::closeSocket(int sock) const
+void VClient::close(int sock) const
 {
 #if defined(_WIN32)
     ::closesocket(sock);
@@ -44,22 +50,4 @@ void VClient::closeSocket(int sock) const
     ::close(sock);
 #endif
 }
-
-/*
- * @brief Create socket
- * @retval true - socket is created, false - socket is not created
- */
-bool VClient::isCreateSocket(const TypeConnect type, int& sock)
-{
-    // Create socket TCP or UDP
-    if (type == TypeConnect::TCP) {
-        sock = ::socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-    } else {
-        sock = ::socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-    }
-
-    if (sock < 0) {
-        return false;
-    }
-    return true;
 }

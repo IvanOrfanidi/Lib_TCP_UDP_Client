@@ -1,0 +1,4 @@
+/home/orfanidi/Lib_TCP_UDP_Client/lib/tcp_udp_client/lib/lib_tcp_udp_client.a
+/home/orfanidi/Lib_TCP_UDP_Client/lib/tcp_udp_client/include/vclient.hpp
+/home/orfanidi/Lib_TCP_UDP_Client/lib/tcp_udp_client/include/udp_client.hpp
+/home/orfanidi/Lib_TCP_UDP_Client/lib/tcp_udp_client/include/tcp_client.hpp

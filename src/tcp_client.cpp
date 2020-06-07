@@ -1,105 +1,167 @@
-#include "tcp_client.hpp"
+#include <cassert>
+#include <stdexcept>
 
-/*
- * @brief Constructor
- * @param addr - IP address
- * @param port - TCP port
- * @param size - max size for data
+#include "../include/tcp_client.h"
+
+namespace tcp_udp_client {
+
+/**
+ * @brief Construct a new tcp client::tcp client object
+ * 
  */
-TCP_Client::TCP_Client(const char* addr, unsigned short port)
+TCP_Client::TCP_Client()
     : _socket(INVAL_SOCKET)
 {
     _local.sin_family = AF_INET;
+}
+
+/**
+ * @brief Construct a new tcp client::tcp client object
+ * 
+ * @param addr - IP address
+ * @param port - TCP port
+ */
+TCP_Client::TCP_Client(const char* addr, uint16_t port)
+    : TCP_Client()
+{
+    assert(addr != nullptr);
+    assert(port != 0);
     _local.sin_addr.s_addr = ::inet_addr(addr);
     _local.sin_port = ::htons(port);
 }
 
-/*
- * @brief Destructor
+/**
+ * @brief Destroy the tcp client::tcp client object
+ * 
  */
 TCP_Client::~TCP_Client()
 {
     stop();
 }
 
-/*
+/**
+ * @brief Set IP address
+ * 
+ * @param addr - IP address
+ */
+void TCP_Client::setAddress(const char* addr)
+{
+    assert(addr != nullptr);
+    _local.sin_addr.s_addr = ::inet_addr(addr);
+}
+
+/**
+ * @brief Set TCP port
+ * 
+ * @param port - TCP port
+ */
+void TCP_Client::setPort(uint16_t port)
+{
+    assert(port != 0);
+    _local.sin_port = ::htons(port);
+}
+
+/**
+ * @brief Create cocket
+ * 
+ * @param sock - cocket number, output param
+ */
+void TCP_Client::create(int& sock)
+{
+    sock = ::socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+    if (sock < 0) {
+        throw std::runtime_error(error_message::CREATE);
+    }
+}
+
+/**
  * @brief Start client
+ * 
  */
-TCP_Client::Result TCP_Client::start()
+void TCP_Client::start()
 {
-    // Create socket
-    if (!isCreateSocket(TypeConnect::TCP, _socket)) {
-        return Result::ERR_CREATE;
+    try {
+        create(_socket);
+    } catch (const std::exception& e) {
+        throw e;
     }
-
-    return Result::OK;
 }
 
-/*
- * @brief Restart client
- */
-bool TCP_Client::isConnecting()
-{
-    // Starting server
-    if (start() != TCP_Client::Result::OK) {
-        return false;
-    }
-    return isConnect();
-}
-
-/*
- * @brief Stop client
+/**
+ * @brief Stop client, socket close
+ * 
  */
 void TCP_Client::stop() const
 {
     ::shutdown(_socket, 1);
-    closeSocket(_socket);
+    close(_socket);
 }
 
-/*
- * @brief Connect to server
- * @retval true - success, false - fail
+/**
+ * @brief Client connecting
+ * 
  */
-bool TCP_Client::isConnect()
+void TCP_Client::connecting()
 {
-    const int res = ::connect(_socket, (struct sockaddr*)&_local, sizeof(_local));
+    try {
+        start();
+    } catch (const std::exception& e) {
+        throw e;
+    }
+
+    try {
+        connect();
+    } catch (const std::exception& e) {
+        throw e;
+    }
+}
+
+/**
+ * @brief Get socket
+ * 
+ * @return int socket
+ */
+int TCP_Client::getSocket() const
+{
+    return _socket;
+}
+
+/**
+ * @brief Connect socket
+ * 
+ */
+void TCP_Client::connect()
+{
+    assert(_socket != INVAL_SOCKET);
+    const auto res = ::connect(_socket, (struct sockaddr*)&_local, sizeof(_local));
     if (res != 0) {
-        return false;
+        throw std::runtime_error(error_message::CONNECT);
     }
-    return true;
 }
 
-/*
+/**
  * @brief Send data
- * @retval true - success, false - fail
+ * 
+ * @param data - data vector
  */
-bool TCP_Client::isSendData(const std::vector<char>& data)
+void TCP_Client::send(const std::vector<char>& data)
 {
-    // First comes the total length of data in formate host to network
-    const uint32_t size = ::htonl(data.size());
-    int res = ::send(_socket, reinterpret_cast<const char*>(&size), sizeof(size), 0);
+    const auto res = ::send(_socket, data.data(), data.size(), 0);
     if (res <= 0) {
-        return false;
+        throw std::runtime_error(error_message::SEND);
     }
-
-    // Second, are data
-    res = ::send(_socket, data.data(), data.size(), 0);
-    if (res <= 0) {
-        return false;
-    }
-    return true;
 }
 
-/*
+/**
  * @brief Receive data
- * @retval true - success, false - fail
+ * 
+ * @param data - data vector, output param
+ * @param length - max data length
  */
-bool TCP_Client::isReceiveData(std::vector<char>& data)
+void TCP_Client::receive(std::vector<char>& data, const size_t length)
 {
-    bool isSize = false;
-    uint32_t size = 0;
-    while (!isSize) {
-        const int len = ::recv(_socket, reinterpret_cast<char*>(&size), sizeof(size), 0);
+    while (true) {
+        const auto len = ::recv(_socket, data.data(), length, 0);
         if (len < 0) {
             if (errno == EINTR) {
                 continue;
@@ -108,32 +170,11 @@ bool TCP_Client::isReceiveData(std::vector<char>& data)
         } else if (0 == len) {
             break;
         } else {
-            // Converting data in format network to host
-            size = ::ntohl(size);
-            data.resize(size);
-            isSize = true;
+            data.resize(len);
+            return;
         }
     }
 
-    if (isSize) {
-        size_t index = 0;
-        while (true) {
-            const int len = ::recv(_socket, data.data(), (size - index), 0);
-            if (len < 0) {
-                if (errno == EINTR) {
-                    continue;
-                }
-                break;
-            } else if (0 == len) {
-                break;
-            } else {
-                index += (size - (size - len));
-                if (index >= size) {
-                    return true;
-                }
-            }
-        }
-    }
-
-    return false;
+    throw std::runtime_error(error_message::RECEIVE);
+}
 }
