@@ -66,12 +66,14 @@ void TCP_Client::setPort(uint16_t port)
  * 
  * @param sock - cocket number, output param
  */
-void TCP_Client::create(int& sock)
+int TCP_Client::create(int sock) const
 {
+    assert(sock != INVAL_SOCKET);
     sock = ::socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
     if (sock < 0) {
         throw std::runtime_error(error_message::CREATE);
     }
+    return sock;
 }
 
 /**
@@ -81,7 +83,7 @@ void TCP_Client::create(int& sock)
 void TCP_Client::start()
 {
     try {
-        create(_socket);
+        _socket = create(_socket);
     } catch (const std::exception& e) {
         throw e;
     }

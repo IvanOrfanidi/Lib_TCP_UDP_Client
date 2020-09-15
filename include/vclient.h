@@ -47,8 +47,9 @@ public:
     /**
      * @brief Create cocket
      * @param sock - cocket number, output param
+     * @return int socket
      */
-    virtual void create(int& sock) = 0;
+    virtual int create(int sock) const = 0;
 
     /** Start client */
     virtual void start() = 0;

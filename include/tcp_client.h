@@ -47,7 +47,7 @@ public:
      * @brief Create cocket
      * @param sock - cocket number, output param
      */
-    virtual void create(int& sock) override;
+    virtual int create(int sock) const override;
 
     /** Start client */
     virtual void start() override;
