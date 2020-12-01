@@ -76,8 +76,8 @@ void UDP_Client::start()
 {
     try {
         _socket = create(_socket);
-    } catch (const std::exception& e) {
-        throw e;
+    } catch (...) {
+        throw std::current_exception();
     }
 }
 
@@ -96,6 +96,7 @@ void UDP_Client::stop() const
  */
 void UDP_Client::send(const std::vector<char>& data)
 {
+    assert(_socket != INVAL_SOCKET);
     const auto res = ::sendto(_socket, data.data(), data.size(), 0, (const struct sockaddr*)&_server, sizeof(struct sockaddr_in));
     if (res <= 0) {
         throw std::runtime_error(error_message::SEND);
@@ -109,12 +110,9 @@ void UDP_Client::send(const std::vector<char>& data)
  */
 void UDP_Client::receive(std::vector<char>& data, const size_t length)
 {
-#if defined(_WIN32)
-    int localLen = sizeof(struct sockaddr_in);
-#else
-    unsigned localLen = sizeof(struct sockaddr_in);
-#endif
-    const auto len = ::recvfrom(_socket, data.data(), length, MSG_WAITALL, (struct sockaddr*)&_server, &localLen);
+    assert(_socket != INVAL_SOCKET);
+    int localLen = sizeof(_server);
+    const auto len = ::recvfrom(_socket, data.data(), length, MSG_WAITALL, (struct sockaddr*)&_server, (socklen_t*)&localLen);
     if (len < 0) {
         throw std::runtime_error(error_message::RECEIVE);
     }
@@ -128,8 +126,8 @@ void UDP_Client::connecting()
 {
     try {
         start();
-    } catch (const std::exception& e) {
-        throw e;
+    } catch (...) {
+        throw std::current_exception();
     }
 }
 

@@ -76,8 +76,8 @@ void TCP_Client::start()
 {
     try {
         _socket = create(_socket);
-    } catch (const std::exception& e) {
-        throw e;
+    } catch (...) {
+        throw std::current_exception();
     }
 }
 
@@ -97,14 +97,14 @@ void TCP_Client::connecting()
 {
     try {
         start();
-    } catch (const std::exception& e) {
-        throw e;
+    } catch (...) {
+        throw std::current_exception();
     }
 
     try {
         connect();
-    } catch (const std::exception& e) {
-        throw e;
+    } catch (...) {
+        throw std::current_exception();
     }
 }
 
