@@ -109,7 +109,11 @@ void UDP_Client::send(const std::vector<char>& data)
  */
 void UDP_Client::receive(std::vector<char>& data, const size_t length)
 {
+#if defined(_WIN32)
     int localLen = sizeof(struct sockaddr_in);
+#else
+    unsigned localLen = sizeof(struct sockaddr_in);
+#endif
     const auto len = ::recvfrom(_socket, data.data(), length, MSG_WAITALL, (struct sockaddr*)&_server, &localLen);
     if (len < 0) {
         throw std::runtime_error(error_message::RECEIVE);
