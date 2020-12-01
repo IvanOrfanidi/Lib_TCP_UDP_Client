@@ -96,7 +96,7 @@ void UDP_Client::stop() const
  */
 void UDP_Client::send(const std::vector<char>& data)
 {
-    const auto res = ::sendto(_socket, data.data(), data.size(), MSG_CONFIRM, (const struct sockaddr*)&_server, sizeof(struct sockaddr_in));
+    const auto res = ::sendto(_socket, data.data(), data.size(), 0, (const struct sockaddr*)&_server, sizeof(struct sockaddr_in));
     if (res <= 0) {
         throw std::runtime_error(error_message::SEND);
     }
@@ -109,7 +109,7 @@ void UDP_Client::send(const std::vector<char>& data)
  */
 void UDP_Client::receive(std::vector<char>& data, const size_t length)
 {
-    unsigned int localLen = sizeof(struct sockaddr_in);
+    int localLen = sizeof(struct sockaddr_in);
     const auto len = ::recvfrom(_socket, data.data(), length, MSG_WAITALL, (struct sockaddr*)&_server, &localLen);
     if (len < 0) {
         throw std::runtime_error(error_message::RECEIVE);
