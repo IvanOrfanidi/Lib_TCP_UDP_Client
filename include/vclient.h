@@ -6,7 +6,9 @@
 #include <vector>
 
 #if defined(_WIN32)
+#define _WINSOCK_DEPRECATED_NO_WARNINGS // disable warnings
 #include <winsock2.h>
+#include <ws2tcpip.h>
 #endif
 
 #if defined(__unix__)
@@ -17,6 +19,7 @@
 #endif
 
 namespace tcp_udp_client {
+
 namespace error_message {
     const std::string CREATE = "client socket not create";
     const std::string CONNECT = "client socket connect failed";
@@ -94,4 +97,5 @@ private:
     static int _countClients; //< counter of children
 #endif
 };
+
 }

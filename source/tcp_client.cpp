@@ -7,7 +7,6 @@ namespace tcp_udp_client {
 
 /**
  * @brief Construct a new tcp client::tcp client object
- * 
  */
 TCP_Client::TCP_Client()
     : _socket(INVAL_SOCKET)
@@ -17,7 +16,6 @@ TCP_Client::TCP_Client()
 
 /**
  * @brief Construct a new tcp client::tcp client object
- * 
  * @param addr - IP address
  * @param port - TCP port
  */
@@ -32,7 +30,6 @@ TCP_Client::TCP_Client(const char* addr, uint16_t port)
 
 /**
  * @brief Destroy the tcp client::tcp client object
- * 
  */
 TCP_Client::~TCP_Client()
 {
@@ -41,7 +38,6 @@ TCP_Client::~TCP_Client()
 
 /**
  * @brief Set IP address
- * 
  * @param addr - IP address
  */
 void TCP_Client::setAddress(const char* addr)
@@ -52,7 +48,6 @@ void TCP_Client::setAddress(const char* addr)
 
 /**
  * @brief Set TCP port
- * 
  * @param port - TCP port
  */
 void TCP_Client::setPort(uint16_t port)
@@ -63,12 +58,10 @@ void TCP_Client::setPort(uint16_t port)
 
 /**
  * @brief Create cocket
- * 
  * @param sock - cocket number, output param
  */
 int TCP_Client::create(int sock) const
 {
-    assert(sock != INVAL_SOCKET);
     sock = ::socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
     if (sock < 0) {
         throw std::runtime_error(error_message::CREATE);
@@ -78,7 +71,6 @@ int TCP_Client::create(int sock) const
 
 /**
  * @brief Start client
- * 
  */
 void TCP_Client::start()
 {
@@ -91,7 +83,6 @@ void TCP_Client::start()
 
 /**
  * @brief Stop client, socket close
- * 
  */
 void TCP_Client::stop() const
 {
@@ -101,7 +92,6 @@ void TCP_Client::stop() const
 
 /**
  * @brief Client connecting
- * 
  */
 void TCP_Client::connecting()
 {
@@ -120,7 +110,6 @@ void TCP_Client::connecting()
 
 /**
  * @brief Get socket
- * 
  * @return int socket
  */
 int TCP_Client::getSocket() const
@@ -130,7 +119,6 @@ int TCP_Client::getSocket() const
 
 /**
  * @brief Connect socket
- * 
  */
 void TCP_Client::connect()
 {
@@ -143,7 +131,6 @@ void TCP_Client::connect()
 
 /**
  * @brief Send data
- * 
  * @param data - data vector
  */
 void TCP_Client::send(const std::vector<char>& data)
@@ -156,7 +143,6 @@ void TCP_Client::send(const std::vector<char>& data)
 
 /**
  * @brief Receive data
- * 
  * @param data - data vector, output param
  * @param length - max data length
  */
@@ -179,4 +165,5 @@ void TCP_Client::receive(std::vector<char>& data, const size_t length)
 
     throw std::runtime_error(error_message::RECEIVE);
 }
+
 }

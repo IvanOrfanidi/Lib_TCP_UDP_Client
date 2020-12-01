@@ -50,4 +50,5 @@ void VClient::close(int sock) const
     ::close(sock);
 #endif
 }
+
 }
