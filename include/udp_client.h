@@ -4,17 +4,17 @@
 
 namespace tcp_udp_client {
 
-class TCP_Client : public VClient {
+class UDP_Client : public VClient {
 public:
-    TCP_Client();
-    virtual ~TCP_Client();
+    UDP_Client();
+    virtual ~UDP_Client();
 
     /**
-     * @brief Construct a new tcp client::tcp client object
+     * @brief Construct a new udp client::udp client object
      * @param addr - IP address
-     * @param port - TCP port
+     * @param port - UDP port
      */
-    explicit TCP_Client(const char* addr, uint16_t port);
+    explicit UDP_Client(const char* addr, uint16_t port);
 
     /**
      * @brief Set IP address
@@ -23,8 +23,8 @@ public:
     virtual void setAddress(const char* addr) override;
 
     /**
-     * @brief Set TCP port
-     * @param port - TCP port
+     * @brief Set UDP port
+     * @param port - UDP port
      */
     virtual void setPort(uint16_t port) override;
 
@@ -62,12 +62,9 @@ public:
      */
     virtual int getSocket() const override;
 
-    /** Connect socket */
-    void connect();
-
 private:
     int _socket; //< socket number
-    struct sockaddr_in _local; //< socket info
+    struct sockaddr_in _server; //< socket info
 };
 
 }
