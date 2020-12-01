@@ -112,7 +112,7 @@ void UDP_Client::receive(std::vector<char>& data, const size_t length)
 {
     assert(_socket != INVAL_SOCKET);
     int localLen = sizeof(_server);
-    const auto len = ::recvfrom(_socket, data.data(), length, MSG_WAITALL, (struct sockaddr*)&_server, (socklen_t*)&localLen);
+    const auto len = ::recvfrom(_socket, data.data(), length, 0, (struct sockaddr*)&_server, (socklen_t*)&localLen);
     if (len < 0) {
         throw std::runtime_error(error_message::RECEIVE);
     }
