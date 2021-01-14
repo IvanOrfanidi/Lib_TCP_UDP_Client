@@ -24,8 +24,8 @@ TCP_Client::TCP_Client(const char* addr, uint16_t port)
 {
     assert(addr != nullptr);
     assert(port != 0);
-    _local.sin_addr.s_addr = ::inet_addr(addr);
-    _local.sin_port = ::htons(port);
+    _local.sin_addr.s_addr = inet_addr(addr);
+    _local.sin_port = htons(port);
 }
 
 /**
@@ -43,7 +43,7 @@ TCP_Client::~TCP_Client()
 void TCP_Client::setAddress(const char* addr)
 {
     assert(addr != nullptr);
-    _local.sin_addr.s_addr = ::inet_addr(addr);
+    _local.sin_addr.s_addr = inet_addr(addr);
 }
 
 /**
@@ -53,16 +53,16 @@ void TCP_Client::setAddress(const char* addr)
 void TCP_Client::setPort(uint16_t port)
 {
     assert(port != 0);
-    _local.sin_port = ::htons(port);
+    _local.sin_port = htons(port);
 }
 
 /**
- * @brief Create cocket
- * @param sock - cocket number, output param
+ * @brief Create socket
+ * @param sock - socket number, output param
  */
-int TCP_Client::create(int sock) const
+int TCP_Client::createSocket(int sock) const
 {
-    sock = ::socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+    sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
     if (sock < 0) {
         throw std::runtime_error(error_message::CREATE);
     }
@@ -75,7 +75,7 @@ int TCP_Client::create(int sock) const
 void TCP_Client::start()
 {
     try {
-        _socket = create(_socket);
+        _socket = createSocket(_socket);
     } catch (...) {
         throw std::current_exception();
     }
@@ -86,8 +86,8 @@ void TCP_Client::start()
  */
 void TCP_Client::stop() const
 {
-    ::shutdown(_socket, 1);
-    close(_socket);
+    shutdown(_socket, 1);
+    closeSocket(_socket);
 }
 
 /**
@@ -102,7 +102,7 @@ void TCP_Client::connecting()
     }
 
     try {
-        connect();
+        connectSocket();
     } catch (...) {
         throw std::current_exception();
     }
@@ -120,10 +120,10 @@ int TCP_Client::getSocket() const
 /**
  * @brief Connect socket
  */
-void TCP_Client::connect()
+void TCP_Client::connectSocket()
 {
     assert(_socket != INVAL_SOCKET);
-    const auto res = ::connect(_socket, (struct sockaddr*)&_local, sizeof(_local));
+    const auto res = connect(_socket, (struct sockaddr*)&_local, sizeof(_local));
     if (res != 0) {
         throw std::runtime_error(error_message::CONNECT);
     }
@@ -133,10 +133,10 @@ void TCP_Client::connect()
  * @brief Send data
  * @param data - data vector
  */
-void TCP_Client::send(const std::vector<char>& data)
+void TCP_Client::sendData(const std::vector<char>& data)
 {
-    const auto res = ::send(_socket, data.data(), data.size(), 0);
-    if (res <= 0) {
+    const auto res = send(_socket, data.data(), data.size(), 0);
+    if (res < 1) {
         throw std::runtime_error(error_message::SEND);
     }
 }
@@ -146,10 +146,10 @@ void TCP_Client::send(const std::vector<char>& data)
  * @param data - data vector, output param
  * @param length - max data length
  */
-void TCP_Client::receive(std::vector<char>& data, const size_t length)
+void TCP_Client::receiveData(std::vector<char>& data, const size_t length)
 {
     while (true) {
-        const auto len = ::recv(_socket, data.data(), length, 0);
+        const auto len = recv(_socket, data.data(), length, 0);
         if (len < 0) {
             if (errno == EINTR) {
                 continue;

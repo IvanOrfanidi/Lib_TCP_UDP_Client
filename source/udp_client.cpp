@@ -24,8 +24,8 @@ UDP_Client::UDP_Client(const char* addr, uint16_t port)
 {
     assert(addr != nullptr);
     assert(port != 0);
-    _server.sin_addr.s_addr = ::inet_addr(addr);
-    _server.sin_port = ::htons(port);
+    _server.sin_addr.s_addr = inet_addr(addr);
+    _server.sin_port = htons(port);
 }
 
 /**
@@ -43,7 +43,7 @@ UDP_Client::~UDP_Client()
 void UDP_Client::setAddress(const char* addr)
 {
     assert(addr != nullptr);
-    _server.sin_addr.s_addr = ::inet_addr(addr);
+    _server.sin_addr.s_addr = inet_addr(addr);
 }
 
 /**
@@ -53,16 +53,16 @@ void UDP_Client::setAddress(const char* addr)
 void UDP_Client::setPort(uint16_t port)
 {
     assert(port != 0);
-    _server.sin_port = ::htons(port);
+    _server.sin_port = htons(port);
 }
 
 /**
- * @brief Create cocket
- * @param sock - cocket number, output param
+ * @brief Create socket
+ * @param sock - socket number, output param
  */
-int UDP_Client::create(int sock) const
+int UDP_Client::createSocket(int sock) const
 {
-    sock = ::socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+    sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
     if (sock < 0) {
         throw std::runtime_error(error_message::CREATE);
     }
@@ -75,7 +75,7 @@ int UDP_Client::create(int sock) const
 void UDP_Client::start()
 {
     try {
-        _socket = create(_socket);
+        _socket = createSocket(_socket);
     } catch (...) {
         throw std::current_exception();
     }
@@ -86,19 +86,19 @@ void UDP_Client::start()
  */
 void UDP_Client::stop() const
 {
-    ::shutdown(_socket, 1);
-    close(_socket);
+    shutdown(_socket, 1);
+    closeSocket(_socket);
 }
 
 /**
  * @brief Send data
  * @param data - data vector
  */
-void UDP_Client::send(const std::vector<char>& data)
+void UDP_Client::sendData(const std::vector<char>& data)
 {
     assert(_socket != INVAL_SOCKET);
-    const auto res = ::sendto(_socket, data.data(), data.size(), 0, (const struct sockaddr*)&_server, sizeof(struct sockaddr_in));
-    if (res <= 0) {
+    const auto res = sendto(_socket, data.data(), data.size(), 0, (const struct sockaddr*)&_server, sizeof(struct sockaddr_in));
+    if (res < 1) {
         throw std::runtime_error(error_message::SEND);
     }
 }
@@ -108,11 +108,11 @@ void UDP_Client::send(const std::vector<char>& data)
  * @param data - data vector, output param
  * @param length - max data length
  */
-void UDP_Client::receive(std::vector<char>& data, const size_t length)
+void UDP_Client::receiveData(std::vector<char>& data, const size_t length)
 {
     assert(_socket != INVAL_SOCKET);
     int localLen = sizeof(_server);
-    const auto len = ::recvfrom(_socket, data.data(), length, 0, (struct sockaddr*)&_server, (socklen_t*)&localLen);
+    const auto len = recvfrom(_socket, data.data(), length, 0, (struct sockaddr*)&_server, (socklen_t*)&localLen);
     if (len < 0) {
         throw std::runtime_error(error_message::RECEIVE);
     }

@@ -48,11 +48,11 @@ public:
     virtual void setPort(uint16_t port) = 0;
 
     /**
-     * @brief Create cocket
-     * @param sock - cocket number, output param
+     * @brief Create socket
+     * @param sock - socket number, output param
      * @return int socket
      */
-    virtual int create(int sock) const = 0;
+    virtual int createSocket(int sock) const = 0;
 
     /** Start client */
     virtual void start() = 0;
@@ -67,14 +67,14 @@ public:
      * @brief Send data
      * @param data - data vector
      */
-    virtual void send(const std::vector<char>& data) = 0;
+    virtual void sendData(const std::vector<char>& data) = 0;
 
     /**
      * @brief Receive data
      * @param data - data vector, output param
      * @param length - max data length
      */
-    virtual void receive(std::vector<char>& data, const size_t length) = 0;
+    virtual void receiveData(std::vector<char>& data, const size_t length) = 0;
 
     /**
      * @brief Get socket
@@ -87,7 +87,7 @@ protected:
      * @brief Close socket
      * @param sock - socket
      */
-    void close(int sock) const;
+    void closeSocket(int sock) const;
 
 private:
     VClient(const VClient&) = delete;

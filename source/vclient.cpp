@@ -13,9 +13,9 @@ int VClient::_countClients = 0;
 VClient::VClient()
 {
 #if defined(_WIN32)
-    if (_countClients <= 0) {
+    if (_countClients < 1) {
         WSADATA wsaData;
-        ::WSAStartup(MAKEWORD(2, 2), &wsaData);
+        WSAStartup(MAKEWORD(2, 2), &wsaData);
     }
     _countClients++;
 #endif
@@ -29,8 +29,8 @@ VClient::~VClient()
 {
 #if defined(_WIN32)
     _countClients--;
-    if (_countClients <= 0) {
-        ::WSACleanup();
+    if (_countClients < 1) {
+        WSACleanup();
     }
 #endif
 }
@@ -40,14 +40,14 @@ VClient::~VClient()
  * 
  * @param sock - socket
  */
-void VClient::close(int sock) const
+void VClient::closeSocket(int sock) const
 {
 #if defined(_WIN32)
-    ::closesocket(sock);
+    closesocket(sock);
 #endif
 
 #if defined(__unix__)
-    ::close(sock);
+    close(sock);
 #endif
 }
 
