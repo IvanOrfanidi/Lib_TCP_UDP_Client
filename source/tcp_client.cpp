@@ -47,6 +47,15 @@ void TCP_Client::setAddress(const char* addr)
 }
 
 /**
+ * @brief Get the IP Address
+ * @return std::string IP address
+ */
+std::string TCP_Client::getAddress() const
+{
+    return inet_ntoa(_local.sin_addr);
+}
+
+/**
  * @brief Set TCP port
  * @param port - TCP port
  */
@@ -54,6 +63,15 @@ void TCP_Client::setPort(uint16_t port)
 {
     assert(port != 0);
     _local.sin_port = htons(port);
+}
+
+/**
+ * @brief Get TCP port
+ * @return port - TCP port
+ */
+uint16_t TCP_Client::getPort() const
+{
+    return ntohs(_local.sin_port);
 }
 
 /**
